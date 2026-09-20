@@ -1,0 +1,9 @@
+BG3SE HEALTHY DONOR EXPORT — ONE LINE
+=====================================
+Run on a HEALTHY save with the SAME companion under the CURRENT progression setup.
+Replace REPLACE_WITH_CHARACTER_UUID.
+
+Wyll: c774d764-4a17-48dc-b470-32ace9ce447d
+Gale: ad9af97d-75da-406a-ae13-7071c563f604
+
+do local id="REPLACE_WITH_CHARACTER_UUID"; local c=Ext.Entity.Get(id); if not c then print("DONOR EXPORT ABORTED - CHARACTER NOT FOUND"); return end; local cc=c:GetComponent("CCLevelUp"); local lu=c:GetComponent("LevelUp"); if not cc or not lu or not cc.LevelUps or not lu.LevelUps then print("DONOR EXPORT ABORTED - LEVELUP COMPONENT MISSING"); return end; local n=#cc.LevelUps; if n==0 or #lu.LevelUps~=n then print("DONOR EXPORT ABORTED - CC/LU COUNT MISMATCH","CC",#cc.LevelUps,"LU",#lu.LevelUps); return end; local d={}; for i=1,n do local a=Ext.Types.Serialize(cc.LevelUps[i]); local b=Ext.Types.Serialize(lu.LevelUps[i]); if Ext.Json.Stringify(a)~=Ext.Json.Stringify(b) then print("DONOR EXPORT ABORTED - CC/LU DATA MISMATCH AT LEVEL",i); return end; d[i]=a end; if Ext.IO.SaveFile("healthy_donor.json",Ext.Json.Stringify(d)) then print("DONOR EXPORTED","healthy_donor.json","LEVELS",#d) else print("DONOR EXPORT ABORTED - FILE WRITE FAILED") end end
