@@ -69,41 +69,58 @@ Result: recovery successful
 
 The donor must therefore contain **at least N compatible entries**, where N is the number of entries currently present on the affected character.
 
-## BG3SE OneShot — single-line console command
+## BG3SE recovery scripts
 
 > [!CAUTION]
-> This is an experimental save-recovery procedure. **Make a separate save backup first.**
-> Use a healthy donor from the same companion/current progression setup.
-> Only continue if the console prints `FIX READY`.
+> This is an experimental save-recovery procedure. **Make a separate game save backup first.**
+> A JSON file written by the script is useful diagnostic backup data, but it is **not a substitute for an untouched BG3 save**.
 
-Replace `REPLACE_WITH_CHARACTER_UUID` with the target companion UUID and ensure `healthy_donor.json` contains the healthy donor data.
+The repository now contains guarded scripts for both stages:
 
-```lua
-character=Ext.Entity.Get("REPLACE_WITH_CHARACTER_UUID"); cc=character:GetComponent("CCLevelUp"); lu=character:GetComponent("LevelUp"); source=Ext.Json.Parse(Ext.IO.LoadFile("healthy_donor.json")); n=#cc.LevelUps; backup={}; for i=1,n do backup[i]=Ext.Types.Serialize(cc.LevelUps[i]) end; Ext.IO.SaveFile("legacy_backup.json",Ext.Json.Stringify(backup)); ok=(n>0 and #lu.LevelUps==n and #source>=n); if ok then for i=1,n do Ext.Types.Unserialize(cc.LevelUps[i],source[i]); Ext.Types.Unserialize(lu.LevelUps[i],source[i]) end; for i=1,n do if Ext.Json.Stringify(Ext.Types.Serialize(cc.LevelUps[i]))~=Ext.Json.Stringify(source[i]) or Ext.Json.Stringify(Ext.Types.Serialize(lu.LevelUps[i]))~=Ext.Json.Stringify(source[i]) then ok=false end end end; print(ok and "FIX READY - RESPEC AND CONFIRM LEVEL 1" or "FIX ABORTED - DO NOT RESPEC","LEVELS",n,"CC",#cc.LevelUps,"LU",#lu.LevelUps,"DONOR",#source)
-```
+- `scripts/export_healthy_donor.lua` — readable donor exporter
+- `scripts/DONOR_EXPORT_ONE_LINE.txt` — paste-ready donor exporter for the BG3SE console
+- `scripts/oneshot_respec.lua` — readable recovery script
+- `scripts/BG3SE_ONE_LINE.txt` — paste-ready recovery command for the BG3SE console
 
-Known companion UUIDs used during testing:
+### 1. Export the healthy donor
+
+Use a **healthy save of the same companion under the current progression setup**. The exporter verifies that the companion's `CCLevelUp` and `LevelUp` arrays have the same count and serialize identically before writing `healthy_donor.json`.
+
+Known UUIDs used during testing:
 
 ```text
 Wyll: c774d764-4a17-48dc-b470-32ace9ce447d
 Gale: ad9af97d-75da-406a-ae13-7071c563f604
 ```
 
-If the output is:
+The healthy donor must contain at least as many `LevelUpData` entries as the affected character.
+
+### 2. Run the recovery on the affected save
+
+Use the **same companion UUID** and the donor generated in step 1. The hardened recovery script checks:
+
+- target entity exists
+- both level-up components exist
+- donor file exists and parses as JSON
+- CC/LU entry counts match
+- donor has at least N entries
+- a character-specific CC+LU diagnostic backup can be written
+- both destination arrays match the donor after the deep write
+
+Only proceed if the console prints:
 
 ```text
 FIX READY - RESPEC AND CONFIRM LEVEL 1
 ```
 
-go to Withers, choose **Change Class**, select the intended class, and **CONFIRM level 1**. Rebuild the remaining levels normally.
+Then go to Withers → **Change Class** → choose the intended class → **CONFIRM level 1** → rebuild the remaining levels normally.
 
-If the output says:
+> [!IMPORTANT]
+> **Do not cancel the first recovery respec.**
+>
+> If the script reports an error, `FIX ABORTED`, or verification failure, do not enter the recovery respec. If an error occurs after mutation has started, reload the untouched game save.
 
-```text
-FIX ABORTED - DO NOT RESPEC
-```
-
-stop. Do not use the recovery respec.
+The exact single-line commands are kept in the `scripts/*_ONE_LINE.txt` files rather than duplicated here, so the README cannot drift away from the maintained console versions.
 
 ## Validation
 
