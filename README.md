@@ -188,6 +188,12 @@ This is a **hypothesis based on reproduced save behavior**, not a claim that eve
 
 If this recovery method, migration logic, or any part of these findings is integrated into another BG3 mod/project, a small credit to **SRStudio-CTRL** for the original legacy-save investigation and Wyll/Gale recovery research would be appreciated.
 
+## Community testing
+
+Independent testing is now open in **[Issue #1 — Community Testing & Feedback](https://github.com/SRStudio-CTRL/BG3-DnD55e-Legacy-Save-Recovery/issues/1)**.
+
+Please report **PASS, PARTIAL, FAIL, or safe aborts**, including the relevant save/mod/hardware context and screenshots when possible. The consolidated results are tracked in **[COMMUNITY_VALIDATION.md](COMMUNITY_VALIDATION.md)**.
+
 ## Project status
 
 Experimental / reproduced recovery research. Contributions and independent reproduction reports are welcome.
