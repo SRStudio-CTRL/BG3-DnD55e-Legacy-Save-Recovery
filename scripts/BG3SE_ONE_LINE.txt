@@ -1,0 +1,34 @@
+BG3SE ONE-LINE CONSOLE COMMAND
+================================
+Gale & Wyll — OneShot Respec N3/N6
+Original investigation & recovery method: SRStudio-CTRL
+
+BACK UP YOUR SAVE FIRST.
+
+Replace REPLACE_WITH_CHARACTER_UUID with the target companion UUID.
+The donor file must be compatible with the same companion/current progression setup
+and contain at least as many LevelUpData entries as the affected character.
+
+Wyll UUID:
+c774d764-4a17-48dc-b470-32ace9ce447d
+
+Gale UUID:
+ad9af97d-75da-406a-ae13-7071c563f604
+
+ONE-LINE COMMAND:
+
+character=Ext.Entity.Get("REPLACE_WITH_CHARACTER_UUID"); cc=character:GetComponent("CCLevelUp"); lu=character:GetComponent("LevelUp"); source=Ext.Json.Parse(Ext.IO.LoadFile("healthy_donor.json")); n=#cc.LevelUps; backup={}; for i=1,n do backup[i]=Ext.Types.Serialize(cc.LevelUps[i]) end; Ext.IO.SaveFile("legacy_backup.json",Ext.Json.Stringify(backup)); ok=(n>0 and #lu.LevelUps==n and #source>=n); if ok then for i=1,n do Ext.Types.Unserialize(cc.LevelUps[i],source[i]); Ext.Types.Unserialize(lu.LevelUps[i],source[i]) end; for i=1,n do if Ext.Json.Stringify(Ext.Types.Serialize(cc.LevelUps[i]))~=Ext.Json.Stringify(source[i]) or Ext.Json.Stringify(Ext.Types.Serialize(lu.LevelUps[i]))~=Ext.Json.Stringify(source[i]) then ok=false end end end; print(ok and "FIX READY - RESPEC AND CONFIRM LEVEL 1" or "FIX ABORTED - DO NOT RESPEC","LEVELS",n,"CC",#cc.LevelUps,"LU",#lu.LevelUps,"DONOR",#source)
+
+ONLY IF THE CONSOLE PRINTS:
+FIX READY - RESPEC AND CONFIRM LEVEL 1
+
+Then:
+1. Go to Withers.
+2. Choose Change Class.
+3. Select the intended class.
+4. CONFIRM LEVEL 1.
+5. Rebuild remaining levels normally.
+
+DO NOT CANCEL THE FIRST RECOVERY RESPEC.
+
+If the console prints FIX ABORTED - DO NOT RESPEC, stop.
