@@ -1,34 +1,28 @@
 BG3SE ONE-LINE CONSOLE COMMAND
 ================================
-Gale & Wyll — OneShot Respec N3/N6
 Original investigation & recovery method: SRStudio-CTRL
 
-BACK UP YOUR SAVE FIRST.
+IMPORTANT
+---------
+1. MAKE A SEPARATE GAME SAVE BACKUP FIRST.
+2. Generate healthy_donor.json from the SAME companion under the CURRENT progression setup.
+3. Replace REPLACE_WITH_CHARACTER_UUID below.
+4. Paste the entire ONE-LINE COMMAND into the BG3SE server Lua console.
+5. Proceed ONLY if it prints:
+   FIX READY - RESPEC AND CONFIRM LEVEL 1
+6. The FIRST recovery respec MUST be CONFIRMED at level 1. DO NOT CANCEL IT.
+7. If any error/abort occurs after mutation, DO NOT RESPEC. Reload the untouched game save.
 
-Replace REPLACE_WITH_CHARACTER_UUID with the target companion UUID.
-The donor file must be compatible with the same companion/current progression setup
-and contain at least as many LevelUpData entries as the affected character.
+Known UUIDs used in testing:
+Wyll: c774d764-4a17-48dc-b470-32ace9ce447d
+Gale: ad9af97d-75da-406a-ae13-7071c563f604
 
-Wyll UUID:
-c774d764-4a17-48dc-b470-32ace9ce447d
+ONE-LINE COMMAND
+----------------
+do local id="REPLACE_WITH_CHARACTER_UUID"; local c=Ext.Entity.Get(id); if not c then print("FIX ABORTED - CHARACTER NOT FOUND"); return end; local cc=c:GetComponent("CCLevelUp"); local lu=c:GetComponent("LevelUp"); if not cc or not lu or not cc.LevelUps or not lu.LevelUps then print("FIX ABORTED - LEVELUP COMPONENT MISSING"); return end; local st=Ext.IO.LoadFile("healthy_donor.json"); if not st then print("FIX ABORTED - DONOR FILE NOT FOUND"); return end; local pok,src=pcall(Ext.Json.Parse,st); if not pok or type(src)~="table" then print("FIX ABORTED - INVALID DONOR JSON"); return end; local n=#cc.LevelUps; if n==0 or #lu.LevelUps~=n or #src<n then print("FIX ABORTED - DO NOT RESPEC","LEVELS",n,"CC",#cc.LevelUps,"LU",#lu.LevelUps,"DONOR",#src); return end; local b={CC={},LU={}}; for i=1,n do b.CC[i]=Ext.Types.Serialize(cc.LevelUps[i]); b.LU[i]=Ext.Types.Serialize(lu.LevelUps[i]) end; if not Ext.IO.SaveFile("legacy_backup_"..id..".json",Ext.Json.Stringify(b)) then print("FIX ABORTED - BACKUP WRITE FAILED"); return end; local wok=pcall(function() for i=1,n do Ext.Types.Unserialize(cc.LevelUps[i],src[i]); Ext.Types.Unserialize(lu.LevelUps[i],src[i]) end end); if not wok then print("FIX ABORTED - WRITE ERROR - RELOAD YOUR UNTOUCHED GAME SAVE"); return end; local ok=true; for i=1,n do if Ext.Json.Stringify(Ext.Types.Serialize(cc.LevelUps[i]))~=Ext.Json.Stringify(src[i]) or Ext.Json.Stringify(Ext.Types.Serialize(lu.LevelUps[i]))~=Ext.Json.Stringify(src[i]) then ok=false; break end end; print(ok and "FIX READY - RESPEC AND CONFIRM LEVEL 1" or "FIX ABORTED - VERIFICATION FAILED - RELOAD YOUR UNTOUCHED GAME SAVE","LEVELS",n,"CC",#cc.LevelUps,"LU",#lu.LevelUps,"DONOR",#src) end
 
-Gale UUID:
-ad9af97d-75da-406a-ae13-7071c563f604
+AFTER FIX READY
+---------------
+Withers -> Change Class -> intended class -> CONFIRM LEVEL 1 -> rebuild remaining levels normally.
 
-ONE-LINE COMMAND:
-
-character=Ext.Entity.Get("REPLACE_WITH_CHARACTER_UUID"); cc=character:GetComponent("CCLevelUp"); lu=character:GetComponent("LevelUp"); source=Ext.Json.Parse(Ext.IO.LoadFile("healthy_donor.json")); n=#cc.LevelUps; backup={}; for i=1,n do backup[i]=Ext.Types.Serialize(cc.LevelUps[i]) end; Ext.IO.SaveFile("legacy_backup.json",Ext.Json.Stringify(backup)); ok=(n>0 and #lu.LevelUps==n and #source>=n); if ok then for i=1,n do Ext.Types.Unserialize(cc.LevelUps[i],source[i]); Ext.Types.Unserialize(lu.LevelUps[i],source[i]) end; for i=1,n do if Ext.Json.Stringify(Ext.Types.Serialize(cc.LevelUps[i]))~=Ext.Json.Stringify(source[i]) or Ext.Json.Stringify(Ext.Types.Serialize(lu.LevelUps[i]))~=Ext.Json.Stringify(source[i]) then ok=false end end end; print(ok and "FIX READY - RESPEC AND CONFIRM LEVEL 1" or "FIX ABORTED - DO NOT RESPEC","LEVELS",n,"CC",#cc.LevelUps,"LU",#lu.LevelUps,"DONOR",#source)
-
-ONLY IF THE CONSOLE PRINTS:
-FIX READY - RESPEC AND CONFIRM LEVEL 1
-
-Then:
-1. Go to Withers.
-2. Choose Change Class.
-3. Select the intended class.
-4. CONFIRM LEVEL 1.
-5. Rebuild remaining levels normally.
-
-DO NOT CANCEL THE FIRST RECOVERY RESPEC.
-
-If the console prints FIX ABORTED - DO NOT RESPEC, stop.
+Any other output means STOP. Do not enter the recovery respec.
